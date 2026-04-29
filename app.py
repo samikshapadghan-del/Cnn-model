@@ -7,11 +7,14 @@ from tensorflow.keras.preprocessing.image import img_to_array
 import numpy as np
 from PIL import Image
 
+# ---------------- CONFIG ----------------
 st.set_page_config(page_title="Coffee Mug Classifier", page_icon="☕")
 
 IMAGE_SIZE = (150, 150)
 MODEL_DIR = "model_folder"
+KAGGLE_MODEL = "samikshapadghan/cnn/tensorFlow2/default/1"
 
+# ---------------- MODEL LOAD ----------------
 @st.cache_resource
 def load_my_model():
     os.makedirs("/home/appuser/.kaggle", exist_ok=True)
@@ -34,7 +37,7 @@ def load_my_model():
                 "instances",
                 "versions",
                 "download",
-                "samikshapadghan/cnn/tensorFlow2/default/1",
+                KAGGLE_MODEL,
                 "-p",
                 MODEL_DIR,
                 "--unzip"
@@ -47,20 +50,31 @@ def load_my_model():
 
 model = load_my_model()
 
-st.title("Coffee Mug vs Tea Cup Classifier")
-st.write("Upload an image to classify it.")
+# ---------------- STREAMLIT UI ----------------
+st.title("☕ Coffee Mug vs Tea Cup Classifier")
+st.write("Upload an image and the model will predict whether it is a coffee mug or tea cup.")
 
-uploaded_file = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader(
+    "Choose an image",
+    type=["jpg", "jpeg", "png"]
+)
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="Uploaded Image", use_container_width=True)
 
+    st.image(
+        image,
+        caption="Uploaded Image",
+        use_container_width=True
+    )
+
+    # Preprocess image
     img = image.resize(IMAGE_SIZE)
     img_array = img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
     img_array = img_array / 255.0
 
+    # Predict
     prediction = model.predict(img_array)
 
     class_names = ["coffee mug", "tea cup"]
@@ -76,6 +90,8 @@ if uploaded_file is not None:
     st.write(f"Confidence: {confidence * 100:.2f}%")
 
     if predicted_class == "coffee mug":
-        st.success("It's a Coffee Mug!")
+        st.success("It's a Coffee Mug ☕")
     else:
-        st.info("It's a Tea Cup!")
+        st.info("It's a Tea Cup 🍵")
+else:
+    st.warning("Please upload an image.")
