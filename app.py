@@ -7,7 +7,7 @@ from PIL import Image
 import os
 
 # --- Configuration ---
-MODEL_PATH = 'https://drive.google.com/file/d/184hM1GABYg54oqCDGaf9NDye34l3p-0g/view?usp=sharing'
+MODEL_PATH = 'https://www.kaggle.com/models/samikshapadghan/cnn//tensorFlow2/default'
 IMAGE_SIZE = (150, 150) # Must match the size used during training
 
 # Load the trained model
