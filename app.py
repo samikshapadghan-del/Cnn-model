@@ -1,5 +1,6 @@
 import os
 import json
+import zipfile
 import subprocess
 import streamlit as st
 import tensorflow as tf
@@ -11,7 +12,7 @@ st.set_page_config(page_title="Coffee Mug Classifier", page_icon="☕")
 
 IMAGE_SIZE = (150, 150)
 MODEL_DIR = "model_folder"
-KAGGLE_MODEL = "samikshapadghan/cnn/tensorFlow2/default/1"
+ZIP_FILE = "model.zip"
 
 @st.cache_resource
 def load_my_model():
@@ -37,21 +38,26 @@ def load_my_model():
                 "instances",
                 "versions",
                 "download",
-                KAGGLE_MODEL,
+                "samikshapadghan/cnn/tensorFlow2/default/1",
                 "-p",
-                MODEL_DIR,
-                "--unzip"
+                MODEL_DIR
             ],
             capture_output=True,
             text=True
         )
 
         if result.returncode != 0:
-            st.error("Kaggle model download failed.")
-            st.code(result.stderr)
+            st.error(result.stderr)
             st.stop()
 
-    st.write("Downloaded files:", os.listdir(MODEL_DIR))
+        # unzip downloaded zip file
+        for file in os.listdir(MODEL_DIR):
+            if file.endswith(".zip"):
+                zip_path = os.path.join(MODEL_DIR, file)
+                with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                    zip_ref.extractall(MODEL_DIR)
+
+    st.write("Files:", os.listdir(MODEL_DIR))
 
     model = tf.keras.models.load_model(MODEL_DIR)
     return model
@@ -59,29 +65,20 @@ def load_my_model():
 model = load_my_model()
 
 st.title("☕ Coffee Mug vs Tea Cup Classifier")
-st.write("Upload an image and the model will predict whether it is a coffee mug or tea cup.")
 
-uploaded_file = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
 
-if uploaded_file is not None:
+if uploaded_file:
     image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="Uploaded Image", use_container_width=True)
+    st.image(image)
 
     img = image.resize(IMAGE_SIZE)
     img_array = img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0)
-    img_array = img_array / 255.0
+    img_array = np.expand_dims(img_array, axis=0) / 255.0
 
-    prediction = model.predict(img_array)
+    pred = model.predict(img_array)
 
-    class_names = ["coffee mug", "tea cup"]
-
-    if prediction[0][0] > 0.5:
-        predicted_class = class_names[1]
-        confidence = prediction[0][0]
+    if pred[0][0] > 0.5:
+        st.success("Tea Cup 🍵")
     else:
-        predicted_class = class_names[0]
-        confidence = 1 - prediction[0][0]
-
-    st.subheader(f"Prediction: {predicted_class}")
-    st.write(f"Confidence: {confidence * 100:.2f}%")
+        st.success("Coffee Mug ☕")
