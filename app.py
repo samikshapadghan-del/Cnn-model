@@ -14,7 +14,8 @@ st.set_page_config(page_title="Coffee Mug Classifier", page_icon="☕")
 # ---------------- SETTINGS ----------------
 IMAGE_SIZE = (150, 150)
 MODEL_DIR = "model_folder"
-KAGGLE_MODEL = "samikshapadghan/cnn/tensorFlow2/default/1"
+KAGGLE_MODEL = "samikshapadghan/cnn/tensorFlow2/default/1/coffee_tea_classifier.h5"
+#/kaggle/input/models/samikshapadghan/cnn/tensorflow2/default/1/coffee_tea_classifier.h5
 
 # ---------------- LOAD MODEL ----------------
 @st.cache_resource
