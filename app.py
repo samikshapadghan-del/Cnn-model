@@ -7,7 +7,7 @@ from PIL import Image
 import os
 
 # --- Configuration ---
-MODEL_PATH = 'coffee_tea_classifier.h5'
+MODEL_PATH = 'https://drive.google.com/file/d/184hM1GABYg54oqCDGaf9NDye34l3p-0g/view?usp=sharing'
 IMAGE_SIZE = (150, 150) # Must match the size used during training
 
 # Load the trained model
